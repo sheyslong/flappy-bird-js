@@ -9,7 +9,7 @@ Well... have a good game!
 
 - [x] Screen Design 
 - [ ] Game logic
-- [ ] Home Screen
+- [x] Home Screen
 
 
 # About me

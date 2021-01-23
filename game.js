@@ -8,6 +8,7 @@ const context = canvas.getContext('2d');
 
 const dimensionX = canvas.width
 const dimensionY = canvas.height
+const gravity = 0.25
 
 const flappyBird = {
     spriteX: 0,
@@ -16,6 +17,11 @@ const flappyBird = {
     height: 24,
     x: 10,
     y: 50,
+    speed: 0,
+    update() {
+        flappyBird.speed = flappyBird.speed + gravity
+        flappyBird.y = flappyBird.y + flappyBird.speed
+    },
     draw() {
         context.drawImage(
             sprites,
@@ -33,7 +39,7 @@ const floor = {
     width: 224,
     height: 112,
     x: 0,
-    y: canvas.height - 112,
+    y: dimensionY - 112,
     draw() {
         context.drawImage(
             sprites,
@@ -52,7 +58,7 @@ const background = {
     width: 275,
     height: 204,
     x: 0,
-    y: canvas.height - 204,
+    y: dimensionY - 204,
     draw() {
         context.fillStyle = '#5c96ff'
         context.fillRect(0, 0, dimensionX, dimensionY)
@@ -67,14 +73,67 @@ const background = {
     },
 }
 
-
-function loop() {
-    
-    background.draw();
-    floor.draw();
-    flappyBird.draw();
-
-    requestAnimationFrame(loop);
+const getReady = {
+    spriteX: 134,
+    spriteY: 0,
+    width: 174,
+    height: 152,
+    x: (dimensionX / 2) - 174 / 2,
+    y: 50,
+    draw() {
+        context.drawImage(
+            sprites,
+            getReady.spriteX, getReady.spriteY,
+            getReady.width, getReady.height,
+            getReady.x, getReady.y,
+            getReady.width, getReady.height,
+        );        
+    },
 }
 
-loop();
+const Screens = {
+    home: {
+        draw() {
+            background.draw();
+            floor.draw();
+            getReady.draw();
+            flappyBird.draw();
+        },
+        click() {
+            changeScreen(Screens.game)
+        },
+        update() {},
+
+    },
+    game: {
+        draw() {
+            background.draw();
+            floor.draw();
+            flappyBird.draw();
+        },
+        update() {
+            flappyBird.update();
+        }
+    }
+    
+}
+
+let activeScreen = {};
+
+function changeScreen(newScreen) {
+    activeScreen = newScreen;
+}
+
+function start() {
+    activeScreen.draw();
+    activeScreen.update();
+
+    requestAnimationFrame(start);
+}
+
+window.addEventListener('click', function() {
+    if(activeScreen.click) activeScreen.click()
+})
+
+changeScreen(Screens.home)
+start();
