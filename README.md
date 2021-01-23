@@ -8,8 +8,8 @@ Well... have a good game!
 # Checklist
 
 - [x] Screen Design 
-- [] Game logic
-- [] Home Screen
+- [ ] Game logic
+- [ ] Home Screen
 
 
 # About me
