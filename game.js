@@ -6,31 +6,58 @@ sprites.src='./sprites.png';
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
 
-const dimensionX = canvas.width
-const dimensionY = canvas.height
-const gravity = 0.25
+const songsHit =  new Audio();
+songsHit.src = './efeitos/hit.wav'
 
-const flappyBird = {
-    spriteX: 0,
-    spriteY: 0,
-    width: 33,
-    height: 24,
-    x: 10,
-    y: 50,
-    speed: 0,
-    update() {
-        flappyBird.speed = flappyBird.speed + gravity
-        flappyBird.y = flappyBird.y + flappyBird.speed
-    },
-    draw() {
-        context.drawImage(
-            sprites,
-            flappyBird.spriteX, flappyBird.spriteY,
-            flappyBird.width, flappyBird.height,
-            flappyBird.x, flappyBird.y,
-            flappyBird.width, flappyBird.height,
-        );
-    },
+const global = {
+    flappyBird: {},
+    gravity: 0.25,
+    dimensionX: canvas.width,
+    dimensionY: canvas.height,
+}
+
+function collision(element) {
+    const flappyBirdY = global.flappyBird.y + global.flappyBird.height;
+    
+    if(flappyBirdY >= element.y) return true
+    
+    return false
+}
+
+function createFlappyBird() {
+    const flappyBird =  {
+        spriteX: 0,
+        spriteY: 0,
+        width: 33,
+        height: 24,
+        x: 10,
+        y: 50,
+        speed: 0,
+        jump: 4.6,
+        update() {
+            if(collision(floor)) {
+                songsHit.play();
+                setTimeout(1000);
+                changeScreen(Screens.home)
+            }
+            flappyBird.speed = flappyBird.speed + global.gravity
+            flappyBird.y = flappyBird.y + flappyBird.speed
+        },
+        draw() {
+            context.drawImage(
+                sprites,
+                flappyBird.spriteX, flappyBird.spriteY,
+                flappyBird.width, flappyBird.height,
+                flappyBird.x, flappyBird.y,
+                flappyBird.width, flappyBird.height,
+            );
+        },
+        jumping() {
+            flappyBird.speed = -flappyBird.jump; 
+        }
+    }
+
+    return flappyBird
 }
 
 const floor = {
@@ -39,14 +66,14 @@ const floor = {
     width: 224,
     height: 112,
     x: 0,
-    y: dimensionY - 112,
+    y: global.dimensionY - 112,
     draw() {
         context.drawImage(
             sprites,
             floor.spriteX, floor.spriteY,
             floor.width, floor.height,
             floor.x, floor.y,
-            dimensionX, floor.height,
+            global.dimensionX, floor.height,
         );
     },
 }
@@ -58,16 +85,16 @@ const background = {
     width: 275,
     height: 204,
     x: 0,
-    y: dimensionY - 204,
+    y: global.dimensionY - 204,
     draw() {
         context.fillStyle = '#5c96ff'
-        context.fillRect(0, 0, dimensionX, dimensionY)
+        context.fillRect(0, 0, global.dimensionX, global.dimensionY)
         context.drawImage(
             sprites,
             background.spriteX, background.spriteY,
             background.width, background.height,
             background.x, background.y,
-            dimensionX, background.height,
+            global.dimensionX, background.height,
         );
         
     },
@@ -78,7 +105,7 @@ const getReady = {
     spriteY: 0,
     width: 174,
     height: 152,
-    x: (dimensionX / 2) - 174 / 2,
+    x: (global.dimensionX / 2) - 174 / 2,
     y: 50,
     draw() {
         context.drawImage(
@@ -93,26 +120,32 @@ const getReady = {
 
 const Screens = {
     home: {
+        init() {
+            global.flappyBird = createFlappyBird()
+        },
         draw() {
             background.draw();
             floor.draw();
             getReady.draw();
-            flappyBird.draw();
+            global.flappyBird.draw();
         },
         click() {
             changeScreen(Screens.game)
         },
-        update() {},
-
+        update() {}
     },
     game: {
+        
         draw() {
             background.draw();
             floor.draw();
-            flappyBird.draw();
+            global.flappyBird.draw();
+        },
+        click() {
+            global.flappyBird.jumping();
         },
         update() {
-            flappyBird.update();
+            global.flappyBird.update();
         }
     }
     
@@ -122,6 +155,8 @@ let activeScreen = {};
 
 function changeScreen(newScreen) {
     activeScreen = newScreen;
+
+    if(activeScreen.init) activeScreen.init()
 }
 
 function start() {

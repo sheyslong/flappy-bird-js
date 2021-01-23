@@ -10,6 +10,7 @@ Well... have a good game!
 - [x] Screen Design 
 - [ ] Game logic
 - [x] Home Screen
+- [x] SOngs
 
 
 # About me
